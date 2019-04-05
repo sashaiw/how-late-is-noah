@@ -12,19 +12,20 @@ static void update_text() {
   
   // nearest 1h alignment in epoch
   time_t nh_e = time(NULL);
-  nh_e -= (nh_e % 3600) - 3600;
+  nh_e += 1800;
+  nh_e -= nh_e % 3600;
+
   
   // calculate lateness in seconds
-  int l8_sec = nh_e - now_e - NOAH_TIME / 2;
+  bool isLate = now_e > nh_e;
+  int l8ness = isLate ? (long long)now_e - (long long)nh_e + NOAH_TIME / 2 : (long long)nh_e - (long long)now_e - NOAH_TIME / 2;
+  int l8_min = l8ness / 60;
+  int l8_sec = l8ness % 60;
 
   // format output
-  if (l8_sec > 0) {
-    int l8_min = l8_sec / 60;
-    l8_sec %= 60;
-    snprintf(s_noah_text, sizeof(s_noah_text), "Noah is %um%us early for class.", l8_min, l8_sec);
+  if (isLate) {
+    snprintf(s_noah_text, sizeof(s_noah_text), "Noah is %um%us late for class.", l8_min, l8_sec);
   } else {
-    int l8_min = -l8_sec / 60;
-    l8_sec %= 60;
     snprintf(s_noah_text, sizeof(s_noah_text), "Noah is %um%us early for class.", l8_min, l8_sec);
   }
 
